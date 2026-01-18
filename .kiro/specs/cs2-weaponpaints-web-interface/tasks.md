@@ -144,32 +144,32 @@ This implementation plan breaks down the CS2 WeaponPaints Web Interface into dis
     - _Requirements: 19.2, 19.6_
 
 - [x] 9. Implement weapon configuration API endpoints
-  - [ ] 9.1 Create GET /api/player/weapons endpoint
+  - [x] 9.1 Create GET /api/player/weapons endpoint
     - Query wp_player_skins table by Steam_ID
     - Deserialize stickers and keychains from database format
     - Return all weapon configurations
     - _Requirements: 2.7, 13.5_
   
-  - [ ] 9.2 Create PUT /api/player/weapons/:weaponId endpoint
+  - [x] 9.2 Create PUT /api/player/weapons/:weaponId endpoint
     - Validate request body (wear, seed, nametag, stattrak, stickers, keychains)
     - Serialize stickers and keychains to database format
     - Insert or update wp_player_skins table
     - Return saved configuration
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 8.2, 8.5, 9.3, 10.5, 11.4, 13.3_
   
-  - [ ] 9.3 Create DELETE /api/player/weapons/:weaponId endpoint
+  - [x] 9.3 Create DELETE /api/player/weapons/:weaponId endpoint
     - Delete weapon configuration from wp_player_skins table
     - Return success response
     - _Requirements: 18.4_
   
-  - [ ] 9.4 Write property tests for weapon configuration
+  - [x] 9.4 Write property tests for weapon configuration
     - **Property 5: Weapon Configuration Persistence**
     - **Property 15: StatTrak Configuration Persistence**
     - **Property 18: Nametag Round-Trip**
     - **Property 21: Complete Weapon Configuration Persistence**
     - **Validates: Requirements 2.3, 2.6, 2.7, 8.2, 8.5, 9.3, 9.4, 13.3**
   
-  - [ ] 9.5 Write unit tests for weapon endpoints
+  - [x] 9.5 Write unit tests for weapon endpoints
     - Test successful weapon configuration save and load
     - Test validation errors for invalid inputs
     - Test authorization (Steam_ID mismatch)

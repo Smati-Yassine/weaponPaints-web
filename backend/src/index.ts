@@ -7,6 +7,7 @@ import { getSessionConfig } from './config/session';
 import { initializeDatabase } from './config/database';
 import { loadAllItemData } from './services/itemLoader';
 import authRoutes from './routes/auth';
+import weaponsRoutes from './routes/weapons';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use(passport.session());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/player/weapons', weaponsRoutes);
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
