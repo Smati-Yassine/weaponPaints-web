@@ -11,8 +11,8 @@ export default function WeaponsPage() {
     queryFn: weaponsApi.getAll,
   });
 
-  // Fetch available skins
-  const { data: skins, isLoading: skinsLoading } = useQuery({
+  // Fetch available skins (for future use)
+  const { isLoading: skinsLoading } = useQuery({
     queryKey: ['skins'],
     queryFn: itemsApi.getSkins,
   });
