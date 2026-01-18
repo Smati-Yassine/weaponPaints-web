@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { knifeApi, itemsApi } from '../services/api';
+import { weaponsApi, itemsApi } from '../services/api';
 
 export default function KnivesPage() {
   const [selectedTeam, setSelectedTeam] = useState<2 | 3>(2);
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
 
-  // Fetch current knife selection
-  const { data: knifeConfig } = useQuery({
-    queryKey: ['knife', selectedTeam],
-    queryFn: () => knifeApi.get(selectedTeam),
+  // Fetch current weapon configurations (includes knives)
+  const { data: weaponsData } = useQuery({
+    queryKey: ['weapons'],
+    queryFn: weaponsApi.getAll,
   });
 
   // Fetch available skins (knives are in skins with weapon_name containing 'knife')
@@ -29,16 +29,26 @@ export default function KnivesPage() {
     knife.paint_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Find current knife for selected team
+  const currentKnife = weaponsData?.find(
+    (w: any) => w.weaponTeam === selectedTeam && w.weaponDefindex === 500
+  );
+
   // Mutation to save knife
   const saveKnifeMutation = useMutation({
-    mutationFn: (knife: string) => knifeApi.update(selectedTeam, knife),
+    mutationFn: (knife: any) => 
+      weaponsApi.update(selectedTeam, 500, {
+        paintId: knife.paint,
+        wear: 0.000001,
+        seed: 0,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['knife', selectedTeam] });
+      queryClient.invalidateQueries({ queryKey: ['weapons'] });
     },
   });
 
   const handleKnifeSelect = (knife: any) => {
-    saveKnifeMutation.mutate(knife.weapon_name);
+    saveKnifeMutation.mutate(knife);
   };
 
   return (
@@ -92,7 +102,7 @@ export default function KnivesPage() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredKnives.map((knife: any) => {
-            const isSelected = knifeConfig?.knife === knife.weapon_name;
+            const isSelected = currentKnife?.paintId === knife.paint;
 
             return (
               <button

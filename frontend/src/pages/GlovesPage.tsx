@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { glovesApi, itemsApi } from '../services/api';
+import { weaponsApi, itemsApi } from '../services/api';
 
 export default function GlovesPage() {
   const [selectedTeam, setSelectedTeam] = useState<2 | 3>(2);
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
 
-  // Fetch current gloves selection
-  const { data: glovesConfig } = useQuery({
-    queryKey: ['gloves', selectedTeam],
-    queryFn: () => glovesApi.get(selectedTeam),
+  // Fetch current weapon configurations (includes gloves)
+  const { data: weaponsData } = useQuery({
+    queryKey: ['weapons'],
+    queryFn: weaponsApi.getAll,
   });
 
   // Fetch available gloves
   const { data: gloves, isLoading } = useQuery({
-    queryKey: ['gloves'],
+    queryKey: ['gloves-items'],
     queryFn: itemsApi.getGloves,
   });
 
@@ -24,16 +24,26 @@ export default function GlovesPage() {
     glove.paint_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Find current glove for selected team (gloves use their specific defindex)
+  const currentGlove = weaponsData?.find(
+    (w: any) => w.weaponTeam === selectedTeam && w.weaponDefindex >= 5027 && w.weaponDefindex <= 5036
+  );
+
   // Mutation to save gloves
   const saveGlovesMutation = useMutation({
-    mutationFn: (defindex: number) => glovesApi.update(selectedTeam, defindex),
+    mutationFn: (glove: any) => 
+      weaponsApi.update(selectedTeam, glove.weapon_defindex, {
+        paintId: parseInt(glove.paint),
+        wear: 0.000001,
+        seed: 0,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gloves', selectedTeam] });
+      queryClient.invalidateQueries({ queryKey: ['weapons'] });
     },
   });
 
   const handleGlovesSelect = (glove: any) => {
-    saveGlovesMutation.mutate(glove.weapon_defindex);
+    saveGlovesMutation.mutate(glove);
   };
 
   return (
@@ -87,7 +97,9 @@ export default function GlovesPage() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredGloves.map((glove: any) => {
-            const isSelected = glovesConfig?.defindex === glove.weapon_defindex;
+            const isSelected = 
+              currentGlove?.weaponDefindex === glove.weapon_defindex && 
+              currentGlove?.paintId === parseInt(glove.paint);
 
             return (
               <button
