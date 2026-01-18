@@ -1,12 +1,138 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { knifeApi, itemsApi } from '../services/api';
+
 export default function KnivesPage() {
+  const [selectedTeam, setSelectedTeam] = useState<2 | 3>(2);
+  const [searchTerm, setSearchTerm] = useState('');
+  const queryClient = useQueryClient();
+
+  // Fetch current knife selection
+  const { data: knifeConfig } = useQuery({
+    queryKey: ['knife', selectedTeam],
+    queryFn: () => knifeApi.get(selectedTeam),
+  });
+
+  // Fetch available skins (knives are in skins with weapon_name containing 'knife')
+  const { data: skins, isLoading } = useQuery({
+    queryKey: ['skins'],
+    queryFn: itemsApi.getSkins,
+  });
+
+  // Filter for knives only
+  const knives = skins?.filter((skin: any) => 
+    skin.weapon_name && skin.weapon_name.includes('knife')
+  ) || [];
+
+  // Filter by search term
+  const filteredKnives = knives.filter((knife: any) =>
+    knife.paint_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Mutation to save knife
+  const saveKnifeMutation = useMutation({
+    mutationFn: (knife: string) => knifeApi.update(selectedTeam, knife),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['knife', selectedTeam] });
+    },
+  });
+
+  const handleKnifeSelect = (knife: any) => {
+    saveKnifeMutation.mutate(knife.weapon_name);
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-white">Knives</h1>
-      <div className="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
-        <div className="text-6xl mb-4">🔪</div>
-        <h3 className="text-xl font-bold text-white mb-2">Knife Customization</h3>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Knives</h1>
         <p className="text-gray-400">Select your knife model for each team</p>
       </div>
+
+      {/* Team Selector */}
+      <div className="flex gap-2 bg-gray-800 p-2 rounded-lg inline-flex border border-gray-700">
+        <button
+          onClick={() => setSelectedTeam(2)}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            selectedTeam === 2
+              ? 'bg-yellow-600 text-white'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          🟡 Terrorist
+        </button>
+        <button
+          onClick={() => setSelectedTeam(3)}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            selectedTeam === 3
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          🔵 Counter-Terrorist
+        </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
+        <input
+          type="text"
+          placeholder="Search knives..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+        />
+      </div>
+
+      {/* Knives Grid */}
+      {isLoading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {filteredKnives.map((knife: any) => {
+            const isSelected = knifeConfig?.knife === knife.weapon_name;
+
+            return (
+              <button
+                key={`${knife.weapon_defindex}-${knife.paint}`}
+                onClick={() => handleKnifeSelect(knife)}
+                className={`bg-gray-800 rounded-lg border-2 transition-all hover:scale-105 ${
+                  isSelected
+                    ? 'border-blue-500 shadow-lg shadow-blue-500/50'
+                    : 'border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <div className="p-4">
+                  <div className="aspect-[4/3] mb-3 flex items-center justify-center bg-gray-900 rounded-lg overflow-hidden">
+                    <img
+                      src={knife.image}
+                      alt={knife.paint_name}
+                      className="w-full h-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h4 className="text-sm font-medium text-white text-center line-clamp-2">
+                    {knife.paint_name}
+                  </h4>
+                  {isSelected && (
+                    <div className="mt-2 text-xs text-blue-400 font-medium">
+                      ✓ Selected
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {filteredKnives.length === 0 && !isLoading && (
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-12 text-center">
+          <p className="text-gray-400">No knives found matching "{searchTerm}"</p>
+        </div>
+      )}
     </div>
   );
 }
