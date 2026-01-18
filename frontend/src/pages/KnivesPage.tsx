@@ -20,9 +20,9 @@ export default function KnivesPage() {
   });
 
   // Filter for knives only
-  const knives = skins?.filter((skin: any) => 
+  const knives = (skins || []).filter((skin: any) => 
     skin.weapon_name && skin.weapon_name.includes('knife')
-  ) || [];
+  );
 
   // Filter by search term
   const filteredKnives = knives.filter((knife: any) =>

@@ -188,31 +188,31 @@ export const itemsApi = {
   // Get all weapon skins
   getSkins: async (): Promise<WeaponSkin[]> => {
     const response = await apiClient.get('/items/skins');
-    return response.data.skins;
+    return Array.isArray(response.data.skins) ? response.data.skins : [];
   },
 
   // Get all gloves
   getGloves: async (): Promise<Glove[]> => {
     const response = await apiClient.get('/items/gloves');
-    return response.data.gloves;
+    return Array.isArray(response.data.gloves) ? response.data.gloves : [];
   },
 
   // Get all agents
   getAgents: async (): Promise<Agent[]> => {
     const response = await apiClient.get('/items/agents');
-    return response.data.agents;
+    return Array.isArray(response.data.agents) ? response.data.agents : [];
   },
 
   // Get all music kits
   getMusic: async (): Promise<MusicKit[]> => {
     const response = await apiClient.get('/items/music');
-    return response.data.music;
+    return Array.isArray(response.data.music) ? response.data.music : [];
   },
 
   // Get all pins
   getPins: async (): Promise<Pin[]> => {
     const response = await apiClient.get('/items/pins');
-    return response.data.pins;
+    return Array.isArray(response.data.pins) ? response.data.pins : [];
   },
 };
 

@@ -21,14 +21,14 @@ export default function WeaponsPage() {
   });
 
   // Group skins by weapon
-  const skinsByWeapon = skins?.reduce((acc: any, skin: any) => {
+  const skinsByWeapon = (skins || []).reduce((acc: any, skin: any) => {
     const weaponName = skin.weapon_name || 'unknown';
     if (!acc[weaponName]) {
       acc[weaponName] = [];
     }
     acc[weaponName].push(skin);
     return acc;
-  }, {}) || {};
+  }, {});
 
   // Get unique weapons
   const weaponsList = Object.keys(skinsByWeapon).sort();

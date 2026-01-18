@@ -17,9 +17,9 @@ export default function PinsPage() {
     queryFn: itemsApi.getPins,
   });
 
-  const filteredPins = pins?.filter((pin: any) =>
+  const filteredPins = (pins || []).filter((pin: any) =>
     pin.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   const savePinMutation = useMutation({
     mutationFn: (pinId: number) => pinsApi.update(selectedTeam, pinId),

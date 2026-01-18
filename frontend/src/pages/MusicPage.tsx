@@ -17,9 +17,9 @@ export default function MusicPage() {
     queryFn: itemsApi.getMusic,
   });
 
-  const filteredMusic = musicKits?.filter((music: any) =>
+  const filteredMusic = (musicKits || []).filter((music: any) =>
     music.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   const saveMusicMutation = useMutation({
     mutationFn: (musicId: number) => musicApi.update(selectedTeam, musicId),

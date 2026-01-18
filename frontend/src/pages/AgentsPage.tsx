@@ -8,12 +8,12 @@ export default function AgentsPage() {
   const queryClient = useQueryClient();
 
   const { data: agentsConfig } = useQuery({
-    queryKey: ['agents'],
+    queryKey: ['player-agents'],
     queryFn: agentsApi.get,
   });
 
   const { data: agents, isLoading } = useQuery({
-    queryKey: ['agents'],
+    queryKey: ['items-agents'],
     queryFn: itemsApi.getAgents,
   });
 
@@ -26,7 +26,7 @@ export default function AgentsPage() {
   const saveAgentMutation = useMutation({
     mutationFn: (model: string) => agentsApi.update(selectedTeam, model),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['agents'] });
+      queryClient.invalidateQueries({ queryKey: ['player-agents'] });
     },
   });
 

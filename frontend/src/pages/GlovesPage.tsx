@@ -20,9 +20,9 @@ export default function GlovesPage() {
   });
 
   // Filter by search term
-  const filteredGloves = gloves?.filter((glove: any) =>
+  const filteredGloves = (gloves || []).filter((glove: any) =>
     glove.paint_name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   // Mutation to save gloves
   const saveGlovesMutation = useMutation({
